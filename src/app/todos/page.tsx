@@ -2,13 +2,16 @@
 import { CiLogout } from "react-icons/ci";
 import Tooltip from "../components/Tooltip";
 import { AllTodos } from "./AllTodos";
-import Logout from '../api/logout/route';
 import { useRouter } from "next/navigation";
 
 export default function Todos() {
+
     const router = useRouter()
     const handleLogout = async () => {
-        await Logout()
+        // await Logout()
+        await fetch(`api/logout/`, {
+            method: "GET",
+        });
         router.push('/login')
     }
 
