@@ -1,3 +1,4 @@
+import { base64url } from "jose";
 import { JsonProperty } from "json-object-mapper";
 
 export default class TodoResponseDto {
@@ -13,4 +14,8 @@ export default class TodoResponseDto {
   completed: boolean = false;
   @JsonProperty({ type: String, name: "flag", required: true })
   flag: string = "";
+  @JsonProperty({ type: String, name: "img", required: true })
+  img: string = "";
+  @JsonProperty({ type: String, name: "File", required: true })
+  file: File | null = null;
 }

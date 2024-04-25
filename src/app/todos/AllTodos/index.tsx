@@ -10,29 +10,17 @@ import TodoResponseDto from '@/app/types';
 import { useRouter } from 'next/navigation';
 import Spinner from '@/app/components/Spinner';
 
-export const AllTodos = () => {
+interface AllTodosProps {
+    todos: TodoResponseDto[],
+    setTodoList: React.Dispatch<React.SetStateAction<TodoResponseDto[]>>,
+    refetchTrigger: () => void
+}
+export const AllTodos = ({ todos, setTodoList, refetchTrigger }: AllTodosProps) => {
     //States
     const [loading, setLoading] = useState(false)
-    const [todoList, setTodoList] = useState<TodoResponseDto[]>([])
-    const [refetchTrigger, setRefetchTrigger] = useState(0)
     //Ref
     const addInput = useRef<HTMLInputElement>(null)
     const router = useRouter()
-    //Effects
-    useEffect(() => {
-        async function fetchTodos() {
-            try {
-                const response = await fetch("api/todos", {
-                    method: "GET",
-                });
-                const data = await response.json();
-                setTodoList(data.todos);
-            } catch (error) {
-                console.error('Error fetching todos:', error);
-            }
-        }
-        fetchTodos();
-    }, [refetchTrigger])
     //Handlers
     const handleSubmit = async (event: React.FormEvent) => {
         setLoading(true)
@@ -47,8 +35,7 @@ export const AllTodos = () => {
                 title,
             }),
         });
-        setRefetchTrigger((trigger) => trigger + 1)
-
+        refetchTrigger()
         if (addInput.current) {
             addInput.current.value = '';
             addInput.current.focus();
@@ -73,7 +60,7 @@ export const AllTodos = () => {
             </form>
             <div className='max-h-[30rem] w-full overflow-auto mt-5'>
                 {
-                    todoList.length === 0 ? (
+                    todos.length === 0 ? (
                         <div className='w-full h-full flex flex-col gap-2 justify-center items-center mt-10'>
                             <p>There is nothing to do..</p>
                             <Image
@@ -82,7 +69,7 @@ export const AllTodos = () => {
                                 alt='there is nothing to do..'
                             />
                         </div>
-                    ) : (todoList.map((todo, index) => (
+                    ) : (todos.map((todo, index) => (
                         <TodoItem
                             key={todo._id}
                             todo={todo}

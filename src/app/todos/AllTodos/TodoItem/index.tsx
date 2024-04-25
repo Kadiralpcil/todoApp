@@ -4,28 +4,29 @@ import Tooltip from "@/app/components/Tooltip";
 import TodoResponseDto from "@/app/types";
 import { FlagResponseDto } from "@/app/types/flagDto";
 import { FaBookmark } from "react-icons/fa";
+import { RiImageAddFill } from "react-icons/ri";
+import { FaFile } from "react-icons/fa";
+
 import Spinner from "@/app/components/Spinner";
+import Modal from "@/app/components/Modal";
 
 interface TodoItemProps {
+
     todo: TodoResponseDto;
     setTodoList: React.Dispatch<React.SetStateAction<TodoResponseDto[]>>
     refetchTrigger: () => void;
+
 }
 
 export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItemProps) {
     //States
+    const [modal, setModal] = useState(false)
     const [loading, setLoading] = useState(false)
     const [dropdownToggle, setDropdownToggle] = useState(false);
     const [flagList, setFlagList] = useState<FlagResponseDto[]>([]);
-    const [editMode, setEditMode] = useState<boolean>(false);
     //Refs
     const inputRef = useRef<HTMLInputElement>(null);
     //Effects
-    useEffect(() => {
-        if (editMode && inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, [editMode]);
     useEffect(() => {
         async function fetchFlags() {
             try {
@@ -42,10 +43,7 @@ export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItem
     }, []);
     //Handlers
     const handleEditMode = () => {
-        setEditMode(true);
-    };
-    const handleCancelEdit = () => {
-        setEditMode(false);
+        setModal(true);
     };
     //Mutations
     const saveTitle = async (newTitle: string) => {
@@ -54,7 +52,6 @@ export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItem
             method: "PUT",
             body: JSON.stringify({ newTitle }),
         });
-        setEditMode(false);
         setTodoList((prevTodoList) => {
             const updatedTodoList = prevTodoList.map((item) => {
                 if (item._id === todo._id) {
@@ -68,12 +65,14 @@ export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItem
         });
         setLoading(false)
     };
+
     const saveCompleted = async (newCompleted: boolean) => {
         setLoading(true)
         await fetch(`api/todos/${todo._id}`, {
             method: "PUT",
             body: JSON.stringify({ newCompleted }),
         });
+
         setTodoList((prevTodoList) => {
             const updatedTodoList = prevTodoList.map((item) => {
                 if (item._id === todo._id) {
@@ -119,79 +118,71 @@ export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItem
             setTodoList((todos) => todos.filter(todo => todo._id !== id))
         };
         setLoading(false)
-
     }
-
+    const modalChilderen =
+        <div>
+            <div className="relative mb-3 data-twe-input-wrapper-init"  >
+                <input
+                    type="text"
+                    className="outline-4 peer block min-h-[auto] w-full rounded border-0 bg-transparent px-3 py-[0.32rem] leading-[1.6] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 peer-focus:text-primary data-[twe-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none [&:not([data-twe-input-placeholder-active])]:placeholder:opacity-0"
+                    id="title"
+                    defaultValue={todo.title}
+                    placeholder="Title" />
+                <label
+                    className="pointer-events-none absolute left-3 top-0 mb-0 max-w-[90%] origin-[0_0] truncate pt-[0.37rem] leading-[1.6] text-neutral-500 transition-all duration-200 ease-out peer-focus:-translate-y-[0.9rem] peer-focus:scale-[0.8] peer-focus:text-primary peer-data-[twe-input-state-active]:-translate-y-[0.9rem] peer-data-[twe-input-state-active]:scale-[0.8] motion-reduce:transition-none "
+                >Title
+                </label>
+            </div>
+            <input type="file" />
+        </div>
 
     return (
-        <div className="flex items-center space-x-4 mb-2 shadow-sm p-2 hover:bg-slate-200">
-            <input
-                type="checkbox"
-                className="h-5 w-5 cursor-pointer rounded-md border border-blue-gray-200 transition-all"
-                defaultChecked={todo.completed}
-                onChange={(e) => saveCompleted(e.target.checked)}
-            />
-            <span
-                className={`ml-6 w-full flex items-center gap-2 ${todo.completed ? "line-through text-gray-500" : ""
-                    }`}
-            >
-                <button>
-                    <FaBookmark
-                        onClick={() => setDropdownToggle(!dropdownToggle)}
-                        className="cursor-pointer"
-                        color={
-                            flagList.find((flag) => flag._id === todo.flag)?.name ?? "gray"
-                        }
-                    />
-                    <div className="relative">
-                        {dropdownToggle && (
-                            <div className="absolute w-12 bg-white rounded-lg shadow-lg z-10">
-                                {flagList.map((item) => (
-                                    <div
-                                        key={item._id}
-                                        className="cursor-pointer p-2 hover:bg-gray-100 flex justify-center"
-                                        onClick={() => saveFlag(item._id)}
-                                    >
-                                        <FaBookmark
-                                            className="cursor-pointer"
-                                            color={item.name === "" ? "gray" : item.name}
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+        <>
+            <Modal isOpen={modal} onClose={() => setModal(false)} children={modalChilderen} />
+            <div className="flex items-center space-x-4 mb-2 shadow-sm p-2 hover:bg-slate-200">
+                <input
+                    type="checkbox"
+                    className="h-5 w-5 cursor-pointer rounded-md border border-blue-gray-200 transition-all"
+                    defaultChecked={todo.completed}
+                    onChange={(e) => saveCompleted(e.target.checked)}
+                />
+                <span
+                    className={`ml-6 w-full flex items-center gap-2 ${todo.completed ? "line-through text-gray-500" : ""
+                        }`}
+                >
+                    <button>
+                        <FaBookmark
+                            onClick={() => setDropdownToggle(!dropdownToggle)}
+                            className="cursor-pointer"
+                            color={
+                                flagList.find((flag) => flag._id === todo.flag)?.name ?? "gray"
+                            }
+                        />
+                        <div className="relative">
+                            {dropdownToggle && (
+                                <div className="absolute w-24 bg-gray-300 rounded-lg shadow-lg z-10 flex ">
+                                    {flagList.map((item) => (
+                                        <div
+                                            key={item._id}
+                                            className="cursor-pointer p-2 hover:bg-gray-100 flex justify-center"
+                                            onClick={() => saveFlag(item._id)}
+                                        >
+                                            <FaBookmark
+                                                className="cursor-pointer"
+                                                color={item.name === "" ? "gray" : item.name}
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </button>
+                    <div>
+                        {todo.title}
                     </div>
-                </button>
-                {editMode ? (
-                    <input
-                        name="title"
-                        id="title"
-                        className="outline-2 bg-blue-100 w-full"
-                        ref={inputRef}
-                        defaultValue={todo.title}
-                    />
-                ) : (
-                    todo.title
-                )}
-            </span>
-            {editMode ? (
+                </span>
                 <>
-                    <button
-                        onClick={() => saveTitle(inputRef.current?.value ?? todo.title)}
-                    >
-                        <Tooltip content="Save">
-                            {loading ? <Spinner /> : <MdSave size={20} color="blue" />}
-                        </Tooltip>
-                    </button>
-                    <button onClick={handleCancelEdit}>
-                        <Tooltip content="Cancel">
-                            <MdCancel size={20} color="blue" />
-                        </Tooltip>
-                    </button>
-                </>
-            ) : (
-                <>
-                    <div onClick={handleEditMode}>
+                    <div onClick={() => setModal(true)}>
                         <Tooltip content="Edit">
                             <MdEdit size={20} color="blue" />
                         </Tooltip>
@@ -202,7 +193,21 @@ export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItem
                         </Tooltip>
                     </button>
                 </>
-            )}
-        </div>
+            </div>
+        </>
+
     );
 }
+
+// <button
+// onClick={() => saveTitle(inputRef.current?.value ?? todo.title)}
+// >
+// <Tooltip content="Save">
+//     {loading ? <Spinner /> : <MdSave size={20} color="blue" />}
+// </Tooltip>
+// </button>
+// <button onClick={handleCancelEdit}>
+// <Tooltip content="Cancel">
+//     <MdCancel size={20} color="blue" />
+// </Tooltip>
+// </button>

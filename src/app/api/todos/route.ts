@@ -14,6 +14,8 @@ export async function POST(request: NextRequest) {
       completed: false,
       deleted: false,
       flag: null,
+      img: "",
+      file: null,
     });
 
     return NextResponse.json(
