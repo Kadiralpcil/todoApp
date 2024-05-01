@@ -8,10 +8,9 @@ export async function POST(request: NextRequest) {
   const body = await request.json();
 
   await connectMongoDB();
-
   try {
     const existingUser = await Login.findOne({
-      name: body.name,
+      username: body.username,
       password: body.password,
     });
 
