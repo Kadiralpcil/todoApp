@@ -11,11 +11,9 @@ import Spinner from "@/app/components/Spinner";
 import Modal from "@/app/components/Modal";
 
 interface TodoItemProps {
-
     todo: TodoResponseDto;
     setTodoList: React.Dispatch<React.SetStateAction<TodoResponseDto[]>>
     refetchTrigger: () => void;
-
 }
 
 export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItemProps) {
@@ -138,7 +136,7 @@ export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItem
 
     return (
         <>
-            <Modal isOpen={modal} onClose={() => setModal(false)} children={modalChilderen} />
+            {/* <Modal isOpen={modal} onClose={() => setModal(false)} children={modalChilderen} /> */}
             <div className="flex items-center space-x-4 mb-2 shadow-sm p-2 hover:bg-slate-200">
                 <input
                     type="checkbox"
@@ -199,15 +197,3 @@ export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItem
     );
 }
 
-// <button
-// onClick={() => saveTitle(inputRef.current?.value ?? todo.title)}
-// >
-// <Tooltip content="Save">
-//     {loading ? <Spinner /> : <MdSave size={20} color="blue" />}
-// </Tooltip>
-// </button>
-// <button onClick={handleCancelEdit}>
-// <Tooltip content="Cancel">
-//     <MdCancel size={20} color="blue" />
-// </Tooltip>
-// </button>
