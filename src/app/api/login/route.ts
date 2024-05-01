@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Hata:", error);
     return NextResponse.json(
-      { success: false, message: error },
+      { success: false, message: "Sunucu hatası" },
       { status: 500 },
     );
   }
