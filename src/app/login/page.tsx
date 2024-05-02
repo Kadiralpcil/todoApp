@@ -64,10 +64,16 @@ export default function LoginPage() {
           open: false,
           variant: "error"
         })} />}
-
       <div className="min-h-screen flex justify-center items-center">
         <div className="bg-white p-8 rounded shadow-md w-96">
+
           <h2 className="text-2xl font-bold mb-4">Login</h2>
+
+          <div className="mb-2 text-gray-500 font-bold">
+            <p className="mb-1">Welcome! Use the following credentials:</p>
+            <p className="mb-1">Username: admin</p>
+            <p>Password: admin</p>
+          </div>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label
