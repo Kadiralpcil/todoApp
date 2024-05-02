@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { MdCancel, MdDelete, MdEdit, MdSave } from "react-icons/md";
 import Tooltip from "@/app/components/Tooltip";
 import TodoResponseDto from "@/app/types";
@@ -9,17 +9,22 @@ import { FaFile } from "react-icons/fa";
 
 import Spinner from "@/app/components/Spinner";
 import Modal from "@/app/components/Modal";
+import { Actions } from "./actions";
 
 interface TodoItemProps {
     todo: TodoResponseDto;
-    setTodoList: React.Dispatch<React.SetStateAction<TodoResponseDto[]>>
+    setTodoList: React.Dispatch<React.SetStateAction<TodoResponseDto[]>>;
     refetchTrigger: () => void;
 }
 
-export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItemProps) {
+export default function TodoItem({
+    todo,
+    refetchTrigger,
+    setTodoList,
+}: TodoItemProps) {
     //States
-    const [modal, setModal] = useState(false)
-    const [loading, setLoading] = useState(false)
+    const [editMode, setEditMode] = useState("");
+    const [loading, setLoading] = useState(false);
     const [dropdownToggle, setDropdownToggle] = useState(false);
     const [flagList, setFlagList] = useState<FlagResponseDto[]>([]);
     //Refs
@@ -39,13 +44,9 @@ export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItem
         }
         fetchFlags();
     }, []);
-    //Handlers
-    const handleEditMode = () => {
-        setModal(true);
-    };
     //Mutations
     const saveTitle = async (newTitle: string) => {
-        setLoading(true)
+        setLoading(true);
         await fetch(`api/todos/${todo._id}`, {
             method: "PUT",
             body: JSON.stringify({ newTitle }),
@@ -53,7 +54,7 @@ export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItem
         setTodoList((prevTodoList) => {
             const updatedTodoList = prevTodoList.map((item) => {
                 if (item._id === todo._id) {
-                    return { ...item, title: newTitle }
+                    return { ...item, title: newTitle };
                 } else {
                     return item;
                 }
@@ -61,11 +62,11 @@ export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItem
 
             return updatedTodoList;
         });
-        setLoading(false)
+        setLoading(false);
+        setEditMode("")
     };
-
     const saveCompleted = async (newCompleted: boolean) => {
-        setLoading(true)
+        setLoading(true);
         await fetch(`api/todos/${todo._id}`, {
             method: "PUT",
             body: JSON.stringify({ newCompleted }),
@@ -74,7 +75,7 @@ export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItem
         setTodoList((prevTodoList) => {
             const updatedTodoList = prevTodoList.map((item) => {
                 if (item._id === todo._id) {
-                    return { ...item, completed: newCompleted }
+                    return { ...item, completed: newCompleted };
                 } else {
                     return item;
                 }
@@ -82,11 +83,11 @@ export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItem
 
             return updatedTodoList;
         });
-        setLoading(false)
+        setLoading(false);
     };
     const saveFlag = async (newFlag: string) => {
-        setLoading(true)
-        setDropdownToggle(!dropdownToggle)
+        setLoading(true);
+        setDropdownToggle(!dropdownToggle);
         const res = await fetch(`api/todos/${todo._id}`, {
             method: "PUT",
             body: JSON.stringify({ newFlag }),
@@ -94,7 +95,7 @@ export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItem
         setTodoList((prevTodoList) => {
             const updatedTodoList = prevTodoList.map((item) => {
                 if (item._id === todo._id) {
-                    return { ...item, flag: newFlag }
+                    return { ...item, flag: newFlag };
                 } else {
                     return item;
                 }
@@ -102,10 +103,10 @@ export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItem
 
             return updatedTodoList;
         });
-        setLoading(false)
+        setLoading(false);
     };
     const handleDelete = async (id: string) => {
-        setLoading(true)
+        setLoading(true);
 
         const res = await fetch(`api/todos?id=${id}`, {
             method: "DELETE",
@@ -113,38 +114,26 @@ export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItem
         const { success } = await res.json();
 
         if (success) {
-            setTodoList((todos) => todos.filter(todo => todo._id !== id))
-        };
-        setLoading(false)
-    }
-    const modalChilderen =
-        <div>
-            <div className="relative mb-3 data-twe-input-wrapper-init"  >
-                <input
-                    type="text"
-                    className="outline-4 peer block min-h-[auto] w-full rounded border-0 bg-transparent px-3 py-[0.32rem] leading-[1.6] outline-none transition-all duration-200 ease-linear focus:placeholder:opacity-100 peer-focus:text-primary data-[twe-input-state-active]:placeholder:opacity-100 motion-reduce:transition-none [&:not([data-twe-input-placeholder-active])]:placeholder:opacity-0"
-                    id="title"
-                    defaultValue={todo.title}
-                    placeholder="Title" />
-                <label
-                    className="pointer-events-none absolute left-3 top-0 mb-0 max-w-[90%] origin-[0_0] truncate pt-[0.37rem] leading-[1.6] text-neutral-500 transition-all duration-200 ease-out peer-focus:-translate-y-[0.9rem] peer-focus:scale-[0.8] peer-focus:text-primary peer-data-[twe-input-state-active]:-translate-y-[0.9rem] peer-data-[twe-input-state-active]:scale-[0.8] motion-reduce:transition-none "
-                >Title
-                </label>
-            </div>
-            <input type="file" />
-        </div>
+            setTodoList((todos) => todos.filter((todo) => todo._id !== id));
+        }
+        setLoading(false);
+    };
+    useEffect(() => {
+        inputRef.current?.focus()
+    }, [editMode])
+
 
     return (
         <>
-            {/* <Modal isOpen={modal} onClose={() => setModal(false)} children={modalChilderen} /> */}
-            <div className="flex items-center space-x-4 mb-2 shadow-sm p-2 hover:bg-slate-200">
+            <div key={todo._id} className="flex items-center space-x-4 mb-2 shadow-sm p-2 hover:bg-slate-200 flex-1">
                 <input
                     type="checkbox"
                     className="h-5 w-5 cursor-pointer rounded-md border border-blue-gray-200 transition-all"
                     defaultChecked={todo.completed}
                     onChange={(e) => saveCompleted(e.target.checked)}
                 />
-                <span
+
+                <div
                     className={`ml-6 w-full flex items-center gap-2 ${todo.completed ? "line-through text-gray-500" : ""
                         }`}
                 >
@@ -175,25 +164,29 @@ export default function TodoItem({ todo, refetchTrigger, setTodoList }: TodoItem
                             )}
                         </div>
                     </button>
-                    <div>
-                        {todo.title}
+                    <div className="flex-1">
+                        {editMode.length > 0 && editMode === todo._id ? (
+                            <>
+                                <input
+                                    onKeyDown={(e) => {
+                                        e.code === "Enter" && saveTitle(inputRef.current?.value ?? "")
+                                    }}
+                                    ref={inputRef}
+                                    defaultValue={todo.title}
+                                    className="w-full flex-1"
+                                />
+                            </>
+                        ) : (
+                            <>{todo.title}</>
+                        )}
                     </div>
-                </span>
-                <>
-                    <div onClick={() => setModal(true)}>
-                        <Tooltip content="Edit">
-                            <MdEdit size={20} color="blue" />
-                        </Tooltip>
-                    </div>
-                    <button onClick={() => handleDelete(todo._id)}>
-                        <Tooltip content="Delete">
-                            {loading ? <Spinner /> : <MdDelete size={20} color="red" />}
-                        </Tooltip>
-                    </button>
-                </>
+                </div>
+                <Actions
+                    loading={loading}
+                    handleDelete={() => handleDelete(todo._id)}
+                    handleEdit={() => { setEditMode(""); setEditMode(todo._id) }}
+                />
             </div>
         </>
-
     );
 }
-
