@@ -172,7 +172,7 @@ export default function TodoItem({
                     {todo?.img ? (
                         <div className="max-w-[50px] min-w-[50px] min-h-[50px] flex justify-center ">
                             <img
-                                src={getImageFiles(todo?.img ?? "")}
+                                src={`/static/images/${todo?.img}`}
                                 alt="Preview"
                                 className="w-full rounded-lg"
                             />
