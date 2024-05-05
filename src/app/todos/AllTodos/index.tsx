@@ -9,25 +9,35 @@ import nothingTodo from '../../../../public/bruno-mars-nothing-at-all.gif'
 import TodoResponseDto from '@/app/types';
 import { useRouter } from 'next/navigation';
 import Spinner from '@/app/components/Spinner';
+import TodoModal from './TodoItem/addUpdateModal';
+import { FlagResponseDto } from '@/app/types/flagDto';
 
 interface AllTodosProps {
     todos: TodoResponseDto[],
     setTodoList: React.Dispatch<React.SetStateAction<TodoResponseDto[]>>,
-    refetchTrigger: () => void
+    refetchTrigger: () => void;
+    loading: boolean,
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+    flagList: FlagResponseDto[]
 }
-export const AllTodos = ({ todos, setTodoList, refetchTrigger }: AllTodosProps) => {
-    //States
-    const [loading, setLoading] = useState(false)
+export const AllTodos = ({ todos, setTodoList, refetchTrigger, loading, setLoading, flagList }: AllTodosProps) => {
+    //State
+    const [modal, setModal] = useState(false)
     //Ref
     const addInput = useRef<HTMLInputElement>(null)
     const router = useRouter()
     //Handlers
     const handleSubmit = async (event: React.FormEvent) => {
-        setLoading(true)
-        event.preventDefault();
-
         const formData = new FormData(event.target as HTMLFormElement);
         const title = formData.get("title");
+        if (JSON.stringify({
+            title,
+        }).length === 0) {
+            return
+        }
+        setLoading(true)
+
+        event.preventDefault();
 
         await fetch("api/todos", {
             method: "POST",
@@ -42,47 +52,58 @@ export const AllTodos = ({ todos, setTodoList, refetchTrigger }: AllTodosProps) 
         }
         setLoading(false)
     };
-    return (
-        <div className=''>
-            <form onSubmit={handleSubmit} className='flex justify-center'>
-                <input
-                    ref={addInput}
-                    className='outline-none w-full'
-                    placeholder='whats your thing..'
-                    id="title"
-                    name="title"
-                />
-                <button type="submit" className='flex justify-end me-2'>
-                    <Tooltip content="add">
-                        {loading ? <Spinner /> : <GoPlusCircle color='gray' size={20} />}
-                    </Tooltip>
-                </button>
-            </form>
-            <div className='max-h-[30rem] w-full overflow-auto mt-5'>
-                {
-                    todos.length === 0 ? (
-                        <div className='w-full h-full flex flex-col gap-2 justify-center items-center mt-10'>
-                            <p>There is nothing to do..</p>
-                            <Image
-                                className='rounded-3xl w-[80%] h-full'
-                                src={nothingTodo}
-                                alt='there is nothing to do..'
-                            />
-                        </div>
-                    ) : (todos.map((todo, index) => (
-                        <TodoItem
-                            key={todo._id}
-                            todo={todo}
-                            setTodoList={setTodoList}
-                            refetchTrigger={() => router.push("/todos")}
-                        />
-                    )))
-                }
-            </div>
 
-        </div>
+    return (
+        <>
+            <TodoModal
+                open={modal}
+                onClose={() => setModal(false)}
+                editedItem={undefined}
+                flagList={flagList}
+                onSave={(todo: TodoResponseDto) => setTodoList(todoList => [...todoList, todo])}
+            />
+            <div>
+                <div className="flex justify-end">
+                    <button onClick={() => setModal(true)} className='flex justify-end me-2'>
+                        {loading ? <Spinner /> : <GoPlusCircle color='gray' size={20} />}
+                    </button>
+                </div>
+                <form onSubmit={handleSubmit} className='flex justify-center'>
+                    <input
+                        ref={addInput}
+                        className='outline-none w-full'
+                        placeholder='Quick todo..'
+                        id="title"
+                        name="title"
+                    />
+
+                </form>
+                <div className='max-h-[30rem] w-full overflow-auto mt-5'>
+                    {loading ? "loading.." :
+                        todos.length === 0 ? (
+                            <div className='w-full h-full flex flex-col gap-2 justify-center items-center mt-10'>
+                                <p>There is nothing to do..</p>
+                                <Image
+                                    className='rounded-3xl w-[80%] h-full'
+                                    src={nothingTodo}
+                                    alt='there is nothing to do..'
+                                />
+                            </div>
+                        ) : (todos.map((todo, index) => (
+                            <TodoItem
+                                key={todo._id}
+                                todo={todo}
+                                setTodoList={setTodoList}
+                                refetchTrigger={() => router.push("/todos")}
+                                loading={loading}
+                                setLoading={setLoading}
+                                flagList={flagList}
+                            />
+                        )))
+                    }
+                </div>
+
+            </div>
+        </>
     )
 }
-
-//kadiralpcil
-//szNLzMBrIGazeCdu

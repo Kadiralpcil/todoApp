@@ -1,48 +1,52 @@
-// src/components/Modal.tsx
+
 
 import { ReactElement, useEffect, useRef, useState } from 'react';
+import { IoIosCloseCircleOutline } from "react-icons/io";
 
 type ModalProps = {
-  isOpen: boolean;
+  open: boolean;
   onClose: () => void;
-  children: ReactElement
+  children: ReactElement;
+  title: ReactElement
 };
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(isOpen);
+const Modal: React.FC<ModalProps> = ({ open, onClose, children, title }) => {
+  //Ref
   const modalRef = useRef<HTMLDivElement>(null);
-
+  //Effects
   useEffect(() => {
-    setIsModalOpen(isOpen)
-
     const handleOutsideClick = (e: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
         onClose();
       }
     };
 
-    if (isOpen) {
+    if (open) {
       document.addEventListener('mousedown', handleOutsideClick);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
     };
-  }, [isOpen, onClose]);
+  }, [open, onClose]);
+
   return (
     <>
-      {isOpen && (
-        <div className="fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white rounded-lg p-8 w-80">
-            <div className="flex justify-end">
+      {open && (
+        <div className="fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center ">
+          <div ref={modalRef} className="bg-white w-full overflow-y-auto rounded-lg max-h-[40rem] sm:max-w-[40rem] ">
+            <div className="flex justify-between p-4 ">
+              <div className='font-bold'>
+                {title}
+              </div>
               <button
                 className="text-gray-500 hover:text-gray-800"
                 onClick={onClose}
               >
-                X
+                <IoIosCloseCircleOutline size={26} />
               </button>
             </div>
-            <div className="mt-4">{children}</div>
+            <div className="p-6 ">{children}</div>
           </div>
         </div>
       )}

@@ -10,14 +10,16 @@ import TodoResponseDto from "../types";
 
 export default function Todos() {
   //State
+  const [loading, setLoading] = useState(true);
   const [flagList, setFlagList] = useState<FlagResponseDto[]>([]);
   const [todoList, setTodoList] = useState<TodoResponseDto[]>([]);
   const [searchText, setSearchText] = useState("");
   const [searchedFlag, setSearhedFlag] = useState("");
-  const [refetchTrigger, setRefetchTrigger] = useState(0)
+  const [refetchTrigger, setRefetchTrigger] = useState(0);
 
   //Hooks
   const router = useRouter();
+
   //Handlers
   const handleSearchChange = (e: string) => {
     setSearchText(e);
@@ -31,7 +33,6 @@ export default function Todos() {
   });
 
   const handleLogout = async () => {
-    // await Logout()
     await fetch(`api/logout/`, {
       method: "GET",
     });
@@ -54,6 +55,7 @@ export default function Todos() {
   }, []);
 
   useEffect(() => {
+    setLoading(true);
     async function fetchTodos() {
       try {
         const response = await fetch("api/todos", {
@@ -66,6 +68,7 @@ export default function Todos() {
       }
     }
     fetchTodos();
+    setLoading(false);
   }, [refetchTrigger]);
 
   return (
@@ -116,7 +119,14 @@ export default function Todos() {
 
         <div className="bg-white rounded-lg shadow-lg p-3 w-full min-h-96 sm:m-3 md:w-[40rem]">
           <h1 className=" text-black font-extrabold text-3xl p-4">Todo App</h1>
-          <AllTodos todos={filteredTodos} setTodoList={setTodoList} refetchTrigger={() => setRefetchTrigger(refetchTrigger + 1)} />
+          <AllTodos
+            todos={filteredTodos}
+            setTodoList={setTodoList}
+            refetchTrigger={() => setRefetchTrigger(refetchTrigger + 1)}
+            loading={loading}
+            setLoading={setLoading}
+            flagList={flagList}
+          />
         </div>
       </div>
     </>

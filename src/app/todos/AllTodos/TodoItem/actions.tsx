@@ -10,8 +10,8 @@ interface ActionsProps {
 
 export const Actions = ({ loading, handleDelete, handleEdit }: ActionsProps) => {
     return (
-        <div className='flex gap-2 pe-2'>
-            <div onClick={handleEdit}>
+        <div className='flex gap-2 pe-2 cursor-pointer '>
+            <div onClick={() => handleEdit()}>
                 <MdEdit size={20} color="blue" />
             </div>
             <button onClick={() => handleDelete()}>

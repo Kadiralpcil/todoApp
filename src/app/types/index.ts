@@ -16,6 +16,6 @@ export default class TodoResponseDto {
   flag: string = "";
   @JsonProperty({ type: String, name: "img", required: true })
   img: string = "";
-  @JsonProperty({ type: String, name: "File", required: true })
-  file: File | null = null;
+  @JsonProperty({ type: String, name: "File", required: false })
+  file: string = "";
 }

@@ -9,7 +9,7 @@ const todoSchema = new Schema(
     deleted: { type: Boolean, default: false },
     flag: { type: String, default: "" },
     img: { type: String, default: "" },
-    // file: { type: File || null, default: null },
+    file: { type: String, default: "" },
   },
   {
     timestamps: true,
