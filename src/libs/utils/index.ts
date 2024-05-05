@@ -1,7 +1,6 @@
 import { isDevelopment, isProduction } from "./env";
 
-const apiUrl = isDevelopment()
-  ? "http://localhost:3000/"
-  : `${window.location.origin}/`;
+const apiUrl =
+  process.env.NODE_ENV === "development" ? "devServerURL" : "prodServerURL";
 
 export { isDevelopment, isProduction, apiUrl };
