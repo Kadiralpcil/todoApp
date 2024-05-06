@@ -5,24 +5,26 @@ This project is a todo application developed using Next.js.
 The project can be tested [live]([https://nextjs.org/](https://todo-app-nine-dusky-49.vercel.app/)).
 
 
-## Teknolojiler
+## Technologies
 
 Frontend: Next.js
 Backend: Next.js (API Routes ile)
 Veritabanı: MongoDB
+TypeScript
+Tailwind
 
-##Running the Project Locally
+## Running the Project Locally
 
 To run the project on your local machine, you can follow these steps:
 
 
 ```bash
-git clone <repository_url>
+git clone <[repository_url](https://github.com/Kadiralpcil/todoApp.git)>
 ```
 
 
 ```bash
-cd <proje_klasoru>
+cd <todo-app>
 ```
 
 ```bash
