@@ -1,16 +1,22 @@
 import { FlagResponseDto } from '@/app/types/flagDto';
 import { FaBookmark } from 'react-icons/fa';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface SelectBoxProps {
     items: FlagResponseDto[];
+    defaultSelectedItem?: string
 }
 
-const SelectBox: React.FC<SelectBoxProps> = ({ items }) => {
+const SelectBox = ({ items, defaultSelectedItem }: SelectBoxProps) => {
     const [selectedItem, setSelectedItem] = useState<string>('');
 
+    useEffect(() => {
+        if (defaultSelectedItem) {
+            setSelectedItem(items.find(item => item._id === defaultSelectedItem)?._id ?? "")
+        }
+    })
+
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        console.log(e.target.children)
         setSelectedItem(e.target.value);
     };
 

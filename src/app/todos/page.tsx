@@ -81,13 +81,12 @@ export default function Todos() {
       <div className="flex justify-center flex-col items-center">
         <div className="w-full sm:m-3 md:w-[40rem] border p-2 border-gray-300 rounded-lg">
           <div className="flex">
-            <span className="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border rounded-e-0 border-gray-300 border-e-0 rounded-s-md dark:bg-gray-600 dark:text-gray-400 dark:border-gray-600">
+            <span className="inline-flex items-center px-3 text-sm  order rounded-e-0 border-e-0 rounded-s-md bg-slate-300">
               {flagList.map((item) => (
                 <div
                   key={item._id}
-                  className={`cursor-pointer p-1 hover:bg-gray-100 flex justify-center ${searchedFlag === item._id ? "bg-green-300 p-4" : ""
+                  className={`cursor-pointer p-2 hover:scale-110 flex justify-center ${searchedFlag === item._id ? "bg-green-200 p-2 rounded-lg" : ""
                     }`}
-                // onClick={() => saveFlag(item._id)}
                 >
                   <FaBookmark
                     onClick={() =>
@@ -104,7 +103,7 @@ export default function Todos() {
               <FaBookmark
                 onClick={() => setSearhedFlag("")}
                 size={20}
-                className="cursor-pointer hover:bg-gray-100 flex justify-center "
+                className="ml-2 cursor-pointer hover:scale-110 flex justify-center "
                 color="gray"
               />
             </span>

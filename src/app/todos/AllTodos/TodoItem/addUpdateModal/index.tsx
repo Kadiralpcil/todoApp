@@ -36,95 +36,114 @@ const TodoModal = ({ open, onClose, editedItem, flagList, onSave }: TodoModalPro
     const imgInputRef = useRef<HTMLInputElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    //Hooks
-    const { getImageFiles } = useApiFiles();
-    const { getFiles } = useApiFiles();
+    const updateTodo = async (event: React.FormEvent<HTMLFormElement>) => {
+        let imageToBase64 = ""
+        let fileToBase64 = ""
 
+        if (imageFile) {
+            imageToBase64 = await getBase64(imageFile)
+        }
+        if (file) {
+            fileToBase64 = await getBase64(file)
+        }
+
+        const formData = new FormData(event.target as HTMLFormElement);
+
+        const newTitle = formData.get("title") as string;
+        const newFlag = formData.get("flag") as string;
+        const newImageUrl = (imageToBase64 === "" ? editedItem?.img : imageToBase64) ?? "";
+        const newFileUrl = (fileToBase64 === "" ? editedItem?.file : fileToBase64) ?? "";
+
+        await fetch(`api/todos/${editedItem?._id}`, {
+            method: "PUT",
+            body: JSON.stringify({ newTitle, newFlag, newFileUrl, newImageUrl })
+        }).then((response) => response.json())
+            .then((data) => {
+                onSave && onSave(data.todo);
+                onClose()
+                const formElement = event.target as HTMLFormElement;
+                formElement.reset();
+
+                setImageFile(undefined);
+                setImageDeleted(false);
+                setFile(undefined);
+                setFileDeleted(false);
+            })
+
+
+    }
+    const saveNewTodo = async (event: React.FormEvent<HTMLFormElement>) => {
+        let imageToBase64 = ""
+        let fileToBase64 = ""
+
+        if (imageFile) {
+            imageToBase64 = await getBase64(imageFile)
+        }
+        if (file) {
+            fileToBase64 = await getBase64(file)
+        }
+
+        const formData = new FormData(event.target as HTMLFormElement);
+
+        const title = formData.get("title") as string;
+        const imageUrl = imageToBase64 ?? "";
+        const flag = formData.get("flag") as string;
+        const fileUrl = fileToBase64 ?? "";
+
+        await fetch("api/todos", {
+            method: "POST",
+            body: JSON.stringify({
+                title,
+                imageUrl,
+                flag,
+                fileUrl,
+            }),
+        }).then((response) => response.json())
+            .then((data) => {
+                onSave && onSave(data.todo);
+                onClose()
+                const formElement = event.target as HTMLFormElement;
+                formElement.reset();
+
+                setImageFile(undefined);
+                setImageDeleted(false);
+                setFile(undefined);
+                setFileDeleted(false);
+            })
+    }
     // Save Mutation
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        imageFile && saveImages();
-        file && saveFiles();
+        event.preventDefault()
 
         if (editedItem) {
-            const formData = new FormData(event.target as HTMLFormElement);
-
-            const newTitle = formData.get("title") as string;
-            const newFlag = formData.get("flag") as string;
-            const newImageUrl = formData.get("imageUrl") as string;
-            const newFileUrl = formData.get("fileUrl") as string;
-
-            await fetch(`api/todos/${editedItem._id}`, {
-                method: "PUT",
-                body: JSON.stringify({ newTitle, newFlag, newFileUrl, newImageUrl })
-            }).then((response) => response.json())
-                .then((data) => {
-                    onSave && onSave(data.todo);
-                    onClose()
-                    const formElement = event.target as HTMLFormElement;
-                    formElement.reset();
-
-                    setImageFile(undefined);
-                    setImageDeleted(false);
-                    setFile(undefined);
-                    setFileDeleted(false);
-                })
-
-
+            await updateTodo(event)
         } else {
-            const formData = new FormData(event.target as HTMLFormElement);
+            await saveNewTodo(event)
 
-            const title = formData.get("title") as string;
-            const imageUrl = formData.get("imageUrl") as string;
-            const flag = formData.get("flag") as string;
-            const fileUrl = formData.get("fileUrl") as string;
-
-            await fetch("api/todos", {
-                method: "POST",
-                body: JSON.stringify({
-                    title,
-                    imageUrl,
-                    flag,
-                    fileUrl,
-                }),
-            }).then((response) => response.json())
-                .then((data) => {
-                    onSave && onSave(data.todo);
-                    onClose()
-                    const formElement = event.target as HTMLFormElement;
-                    formElement.reset();
-
-                    setImageFile(undefined);
-                    setImageDeleted(false);
-                    setFile(undefined);
-                    setFileDeleted(false);
-                })
         }
     };
-    const saveImages = () => {
-        const formData = new FormData();
-        imageFile && formData.append("file", imageFile);
 
-        fetch("/api/images", {
-            method: "POST",
-            body: formData,
-        })
-            .then((response) => response.json())
-            .then((data) => console.log(data))
-            .catch((err) => console.log(err));
-    };
-    const saveFiles = () => {
-        const formData = new FormData();
-        file && formData.append("file", file);
+    const getBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve) => {
+            let baseURL = "";
 
-        fetch("/api/files", {
-            method: "POST",
-            body: formData,
-        })
-            .then((response) => response.json())
-            .then((data) => console.log(data))
-            .catch((err) => console.log(err));
+            // Make new FileReader
+            let reader = new FileReader();
+
+            // Convert the file to base64 text
+            reader.readAsDataURL(file);
+
+            // on reader load something...
+            reader.onload = () => {
+                // Set the base64 result to baseURL
+                if (typeof reader.result === 'string') {
+                    baseURL = reader.result;
+                    resolve(baseURL);
+                }
+            };
+        });
     };
+
 
     //Handlers
     const handleImageFileChange = (
@@ -214,7 +233,7 @@ const TodoModal = ({ open, onClose, editedItem, flagList, onSave }: TodoModalPro
                         >
                             Flag
                         </label>
-                        <SelectBox items={flagList ?? []} />
+                        <SelectBox defaultSelectedItem={editedItem?.flag} items={flagList ?? []} />
                     </div>
                 </div>
                 <div className="sm:flex sm:gap-2  justify-between">
@@ -233,7 +252,7 @@ const TodoModal = ({ open, onClose, editedItem, flagList, onSave }: TodoModalPro
                                         src={
                                             imageFile
                                                 ? URL.createObjectURL(imageFile)
-                                                : getImageFiles(editedItem?.img ?? "")
+                                                : (editedItem?.img ?? "")
                                         }
                                         alt="Preview"
                                     />
@@ -243,7 +262,7 @@ const TodoModal = ({ open, onClose, editedItem, flagList, onSave }: TodoModalPro
                                             href={
                                                 imageFile
                                                     ? URL.createObjectURL(imageFile)
-                                                    : getImageFiles(editedItem?.img ?? "")
+                                                    : (editedItem?.img ?? "")
                                             }
                                             target="_blank"
                                             rel="noopener noreferrer"
@@ -255,7 +274,7 @@ const TodoModal = ({ open, onClose, editedItem, flagList, onSave }: TodoModalPro
                                             href={
                                                 imageFile
                                                     ? URL.createObjectURL(imageFile)
-                                                    : getImageFiles(editedItem?.img ?? "")
+                                                    : (editedItem?.img ?? "")
                                             }
                                             download
                                         >
@@ -290,7 +309,7 @@ const TodoModal = ({ open, onClose, editedItem, flagList, onSave }: TodoModalPro
                                 <div className="relative flex flex-col items-center w-[12rem] min-h-[12rem]  bg-gray-200 rounded">
                                     <FaFile className="text-8xl absolute top-4" />
                                     <div className="absolute text-white bottom-0 bg-black text-xs text-center ">
-                                        {file ? file.name : editedItem?.file}
+                                        {file ? file.name : editedItem?.title + " attachment"}
                                     </div>
                                     <div className="absolute bg-gray-700 w-[12rem] min-h-[12rem] flex justify-around items-center opacity-0 hover:opacity-80 transition-all	">
                                         <a
@@ -298,7 +317,7 @@ const TodoModal = ({ open, onClose, editedItem, flagList, onSave }: TodoModalPro
                                             href={
                                                 file
                                                     ? URL.createObjectURL(file)
-                                                    : getFiles(editedItem?.file ?? "")
+                                                    : (editedItem?.file ?? "")
                                             }
                                             target="_blank"
                                             rel="noopener noreferrer"
@@ -310,7 +329,7 @@ const TodoModal = ({ open, onClose, editedItem, flagList, onSave }: TodoModalPro
                                             href={
                                                 file
                                                     ? URL.createObjectURL(file)
-                                                    : getFiles(editedItem?.file ?? "")
+                                                    : (editedItem?.file ?? "")
                                             }
                                             download
                                         >
@@ -354,3 +373,30 @@ const TodoModal = ({ open, onClose, editedItem, flagList, onSave }: TodoModalPro
 };
 
 export default TodoModal;
+
+
+
+// const saveImages = () => {
+//     const formData = new FormData();
+//     imageFile && formData.append("file", imageFile);
+
+//     fetch("/api/images", {
+//         method: "POST",
+//         body: formData,
+//     })
+//         .then((response) => response.json())
+//         .then((data) => console.log(data))
+//         .catch((err) => console.log(err));
+// };
+// const saveFiles = () => {
+//     const formData = new FormData();
+//     file && formData.append("file", file);
+
+//     fetch("/api/files", {
+//         method: "POST",
+//         body: formData,
+//     })
+//         .then((response) => response.json())
+//         .then((data) => console.log(data))
+//         .catch((err) => console.log(err));
+// };

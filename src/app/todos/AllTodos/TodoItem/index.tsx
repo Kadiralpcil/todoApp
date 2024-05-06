@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 
 import TodoResponseDto from "@/app/types";
 import { FlagResponseDto } from "@/app/types/flagDto";
@@ -8,7 +8,6 @@ import { Actions } from "./actions";
 import TodoModal from "./addUpdateModal";
 import { CiImageOff } from "react-icons/ci";
 import { FaFileDownload } from "react-icons/fa";
-import { useApiFiles } from "@/app/hooks/useApiFiles";
 
 interface TodoItemProps {
     todo: TodoResponseDto;
@@ -33,9 +32,6 @@ export default function TodoItem({
         TodoResponseDto | undefined
     >(undefined);
 
-    //Hooks
-    const { getImageFiles } = useApiFiles();
-    const { getFiles } = useApiFiles()
 
     //Mutations
     const saveTitle = async (newTitle: string) => {
@@ -172,7 +168,7 @@ export default function TodoItem({
                     {todo?.img ? (
                         <div className="max-w-[50px] min-w-[50px] min-h-[50px] flex justify-center ">
                             <img
-                                src={getImageFiles(todo?.img)}
+                                src={(todo?.img)}
                                 alt="Preview"
                                 className="w-full rounded-lg"
                             />
@@ -188,7 +184,7 @@ export default function TodoItem({
                         {todo.file && (
                             <a
                                 onClick={(e) => e.stopPropagation()}
-                                href={getFiles(todo?.file ?? "")}
+                                href={(todo?.file ?? "")}
                                 download
                             >
                                 <FaFileDownload className="text-xl cursor-pointer " />
