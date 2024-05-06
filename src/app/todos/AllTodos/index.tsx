@@ -79,7 +79,21 @@ export const AllTodos = ({ todos, setTodoList, refetchTrigger, loading, setLoadi
 
                 </form>
                 <div className='max-h-[30rem] w-full overflow-auto mt-5'>
-                    {loading ? "loading.." :
+                    {loading ?
+                        <>
+                            <div className='flex justify-center'> <Spinner /></div>
+                            {(todos.map((todo, index) => (
+                                <TodoItem
+                                    key={todo._id}
+                                    todo={todo}
+                                    setTodoList={setTodoList}
+                                    refetchTrigger={() => router.push("/todos")}
+                                    loading={loading}
+                                    setLoading={setLoading}
+                                    flagList={flagList}
+                                />
+                            )))}
+                        </> :
                         todos.length === 0 ? (
                             <div className='w-full h-full flex flex-col gap-2 justify-center items-center mt-10'>
                                 <p>There is nothing to do..</p>
