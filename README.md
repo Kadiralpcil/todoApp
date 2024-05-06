@@ -2,16 +2,12 @@
 
 This project is a todo application developed using Next.js.
 
-The project can be tested [live]([https://nextjs.org/](https://todo-app-nine-dusky-49.vercel.app/)).
+The project can be tested [live]([https://nextjs.org/](https://todo-app-nine-dusky-49.vercel.app/)) on .https://todo-app-nine-dusky-49.vercel.app/
 
 
 ## Technologies
 
-Frontend: Next.js
-Backend: Next.js (API Routes ile)
-Veritabanı: MongoDB
-TypeScript
-Tailwind
+ Next.js - Next.js (API Routes ile) -  MongoDB - TypeScript - Tailwind
 
 ## Running the Project Locally
 
