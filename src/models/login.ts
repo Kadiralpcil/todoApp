@@ -4,6 +4,7 @@ const loginSchema = new Schema(
   {
     username: { type: String },
     password: { type: String },
+    type: { type: String },
   },
   {
     timestamps: true,

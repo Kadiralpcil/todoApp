@@ -8,7 +8,6 @@ export async function POST(request: NextRequest) {
   await connectMongoDB();
 
   try {
-    // Yeni Todo oluştur
     const newTodo = await Todo.create({
       userId: cookies().get("userId")?.value ?? 0,
       title: body.title,
@@ -19,10 +18,8 @@ export async function POST(request: NextRequest) {
       file: body.fileUrl,
     });
 
-    // Oluşturulan Todo'nun ID'sini al
-    const todoId = newTodo._id; // MongoDB'de ID genellikle _id olarak saklanır
+    const todoId = newTodo._id;
 
-    // Yanıtı hazırla ve yeni Todo'nun ID'sini de ekleyerek gönder
     return NextResponse.json(
       {
         success: true,

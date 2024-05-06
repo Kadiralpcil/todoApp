@@ -8,9 +8,10 @@ type ModalProps = {
   onClose: () => void;
   children: ReactElement;
   title: ReactElement
+  size?: "sm"
 };
 
-const Modal: React.FC<ModalProps> = ({ open, onClose, children, title }) => {
+const Modal: React.FC<ModalProps> = ({ open, onClose, children, title, size }) => {
   //Ref
   const modalRef = useRef<HTMLDivElement>(null);
   //Effects
@@ -34,7 +35,7 @@ const Modal: React.FC<ModalProps> = ({ open, onClose, children, title }) => {
     <>
       {open && (
         <div className="fixed top-0 left-0 w-full h-full bg-gray-800 bg-opacity-50 flex justify-center items-center ">
-          <div ref={modalRef} className="bg-white w-full overflow-y-auto rounded-lg max-h-[40rem] sm:max-w-[40rem] ">
+          <div ref={modalRef} className={size ? "w-[15rem] bg-white overflow-y-auto" : "bg-white w-full overflow-y-auto rounded-lg max-h-[40rem] sm:max-w-[40rem] "}>
             <div className="flex justify-between p-4 ">
               <div className='font-bold'>
                 {title}

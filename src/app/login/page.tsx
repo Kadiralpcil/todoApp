@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Notify from "../components/Notify";
 import { useState } from "react";
 import Spinner from "../components/Spinner";
+import SignUpModal from "./signupModal";
 
 interface notificationProps {
   open: boolean,
@@ -17,6 +18,7 @@ export default function LoginPage() {
   //State
   const [notification, setNotification] = useState<notificationProps | undefined>(undefined)
   const [loading, setLoading] = useState(false)
+  const [signUpModal, setSignUpModal] = useState(false)
 
   //Handlers
   const handleSubmit = async (event: React.FormEvent) => {
@@ -64,6 +66,10 @@ export default function LoginPage() {
           open: false,
           variant: "error"
         })} />}
+      <SignUpModal
+        open={signUpModal}
+        onClose={() => setSignUpModal(false)}
+      />
       <div className="min-h-screen flex justify-center items-center">
         <div className="bg-white p-8 rounded shadow-md w-96">
 
@@ -73,6 +79,12 @@ export default function LoginPage() {
             <p className="mb-1">Welcome! Use the following credentials:</p>
             <p className="mb-1">Username: admin</p>
             <p>Password: admin</p>
+            or
+            <div
+              onClick={() => setSignUpModal(true)}
+              className="underline text-blue-300 cursor-pointer"
+            >Sign up
+            </div>
           </div>
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
